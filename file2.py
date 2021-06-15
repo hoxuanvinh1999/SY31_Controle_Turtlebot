@@ -46,7 +46,7 @@ class CameraNode:
         self.Cmax=np.array([221,114,40])
 
         # Publisher to the output topics.
-        self.position_robot = rospy.Publisher('position',Point32,queue_size = 10)
+        self.position_target = rospy.Publisher('position',Point32,queue_size = 10)
         self.surface_target = rospy.Publisher('surface',Float32,queue_size=10)
         self.pub_img = rospy.Publisher('~output', Image, queue_size=1)
 
@@ -72,7 +72,7 @@ class CameraNode:
 
         contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
-        if(contours == []): #if length(contours == 0)
+        if (length(contours) == 0):
             print('Can not see target\n')
             self.target_surface = 0
             self.surface_target.publish(self.target_surface)
@@ -80,8 +80,8 @@ class CameraNode:
             self.position.x = 0
             self.position.y = 0
             self.position.z = 0
-            self.position_robot.publish(self.position)
-        else: #if length(contours >0)
+            self.position_target.publish(self.position)
+        else: #if (length(contours) >0))
             valMax = cv2.contourArea(contours[0])
             k = 0
             for i in range(len(contours)) :
@@ -104,17 +104,17 @@ class CameraNode:
                 self.position.x=1
                 self.position.y=0
                 self.position.z=0
-                self.position_robot.publish(self.position)
+                self.position_target.publish(self.position)
             elif ( center > (2*x)/3 ): #right
                 self.position.z=1
                 self.position.x=0
                 self.position.y=0
-                self.position_robot.publish(self.position)
+                self.position_target.publish(self.position)
             else:
                 self.position.y=1
                 self.position.x=0
                 self.position.z=0
-                self.position_robot.publish(self.position)
+                self.position_target.publish(self.position)
 
             cont = max(contours, key=cv2.contourArea)
             if cv2.contourArea(cont)>100:
