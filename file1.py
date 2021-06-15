@@ -16,10 +16,10 @@ from sensor_msgs.msg import Imu, MagneticField
 from tf.transformations import quaternion_from_euler, euler_from_quaternion
 
 #Init valeurs
-global d_forward = 0
-global d_right = 0
-global d_left = 0
-global d_back = 0
+global d_forward = None
+global d_right = None
+global d_left = None
+global d_back = None
 
 global distance_obstacle = 0.1
 global obstacles = []

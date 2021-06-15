@@ -42,6 +42,7 @@ class CameraNode:
         self.position = Point32()
         self.target_surface = Float32()
 
+        #Blue Objet
         self.Cmin=np.array([171,74,0])
         self.Cmax=np.array([221,114,40])
 
@@ -64,6 +65,9 @@ class CameraNode:
         except CvBridgeError as e:
             rospy.logwarn('ROS->OpenCV %s', e)
             return
+        
+        #calcul width
+        width = img_bgr.shape[1]
 
         img_hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
         mask_bgr = cv2.inRange(img_bgr, self.bgr_min, self.bgr_max)
@@ -92,6 +96,10 @@ class CameraNode:
             center = np.mean(contours[k], axis=0)[0]
         
             radius = np.abs(center - contours[k][0])
+
+            #If it is a circle
+            self.target_surface = np.pi*radius*radius
+            self.surface_target.publish(self.target_surface)
             
             for i in range(len(contours[k])):
                 if radius < np.abs(center - contours[k][0]):
@@ -99,13 +107,12 @@ class CameraNode:
             
             cv2.circle(img_bgr, tuple(center), radius)
 
-            #Initial it's 0
-            if ( center < x/3 ):   #left
+            if ( center < width/3 ):   #left
                 self.position.x=1
                 self.position.y=0
                 self.position.z=0
                 self.position_target.publish(self.position)
-            elif ( center > (2*x)/3 ): #right
+            elif ( center > 2*width/3 ): #right
                 self.position.z=1
                 self.position.x=0
                 self.position.y=0
@@ -121,8 +128,8 @@ class CameraNode:
                 hull = cv2.convexHull(cont)
                 x,y,w,h = cv2.boundingRect(cont)
 
-                self.target_surface = w*h
-                self.surface_target.publish(self.target_surface)
+                # self.target_surface = ?? x*y or w*h
+                # self.surface_target.publish(self.target_surface)
 
                 cv2.drawContours(img_bgr, [cont], -1, (0,255,0), 10)
                 cv2.drawContours(img_bgr, [hull], -1, (0,0,255), 10)
@@ -130,8 +137,8 @@ class CameraNode:
                 cv2.circle(img_bgr, (x+int(w/2),y+int(h/2)), 10, (50,50,50), -1)
             else:
                 x,y,w,h = cv2.boundingRect(cont)
-                self.target_surface = w*h
-                self.surface_target.publish(self.target_surface)
+                # self.target_surface = ?? x*y or w*h
+                # self.surface_target.publish(self.target_surface)
 
 
         # Convert OpenCV -> ROS Image and publish
