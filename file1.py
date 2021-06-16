@@ -14,8 +14,6 @@ from sensor_msgs.msg import LaserScan, PointCloud2, PointField
 from sensor_msgs.msg import Imu, MagneticField
 from tf.transformations import quaternion_from_euler, euler_from_quaternion
 
-#Init valeurs
-
 
 PC2FIELDS = [PointField('x', 0, PointField.FLOAT32, 1),
              PointField('y', 4, PointField.FLOAT32, 1),
@@ -107,15 +105,19 @@ class moving:
         for i, theta in enumerate(np.arange(msg.angle_min, msg.angle_max, msg.angle_increment)):
             # ToDo: Remove points too close
             if msg.ranges[i] < 0.1:
-                coords.append(0.1)
                 continue
             # ToDo: Polar to Cartesian transformation
             coords.append([msg.ranges[i]*np.cos(theta), msg.ranges[i]*np.sin(theta)])
-
-        self.d_forward =  min(min(coords[0:45]) , min(coords[316:359]))
-        self.d_right = min(coords[46:135])
-        self.d_back = min(coords[136:225])
-        self.d_left = min(coords[226:315])
+        #print(coords)
+        distance = []
+        for point in coords:
+            distance.append(np.sqrt(point[0]*point[0]+point[1]*point[1]))
+        first = min(distance[0:25])
+        second = min(distance[175:200])
+        self.d_forward =  min(first,second)
+        self.d_right = min(distance[26:75])
+        self.d_back = min(distance[76:125])
+        self.d_left = min(distance[126:175])
 
 if __name__ == '__main__':
     try:

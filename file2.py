@@ -10,12 +10,12 @@ import rospy
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
 from geometry_msgs.msg import PoseStamped
-from turtlebot3_msgs.msg import SensorState
 from std_msgs.msg import Int32, Float32
 from geometry_msgs.msg import Twist, Point32
 from sensor_msgs.msg import LaserScan, PointCloud2, PointField
 from sensor_msgs.msg import Imu, MagneticField
 from tf.transformations import quaternion_from_euler, euler_from_quaternion
+from sensor_msgs.msg import Image
 
 PC2FIELDS = [PointField('x', 0, PointField.FLOAT32, 1),
              PointField('y', 4, PointField.FLOAT32, 1),
@@ -83,7 +83,7 @@ class CameraNode:
         #cv2.drawContours(img_bgr, contours , -1 , (0,255,0) , 3)
         #cv2.contourArea(contours)
 
-        if (length(contours) == 0):
+        if (contours == []):
             print('Can not see target(Or maybe it is too big)\n')
             self.target_surface = 0
             self.surface_target.publish(self.target_surface)
@@ -92,7 +92,7 @@ class CameraNode:
             self.position.y = 0
             self.position.z = 0
             self.position_target.publish(self.position)
-        else: #if (length(contours) >0))
+        else:
             valMax = cv2.contourArea(contours[0])
             k = 0
             for i in range(len(contours)) :
@@ -106,6 +106,7 @@ class CameraNode:
 
             #If it is a circle
             self.target_surface = np.pi*radius*radius
+            print(self.target_surface)
             self.surface_target.publish(self.target_surface)
             
             for i in range(len(contours[k])):
@@ -135,8 +136,8 @@ class CameraNode:
                 hull = cv2.convexHull(cont)
                 x,y,w,h = cv2.boundingRect(cont)
 
-                # self.target_surface = ?? x*y or w*h
-                # self.surface_target.publish(self.target_surface)
+                self.target_surface = w*h
+                self.surface_target.publish(self.target_surface)
 
                 cv2.drawContours(img_bgr, [cont], -1, (0,255,0), 10)
                 cv2.drawContours(img_bgr, [hull], -1, (0,0,255), 10)
@@ -144,8 +145,8 @@ class CameraNode:
                 cv2.circle(img_bgr, (x+int(w/2),y+int(h/2)), 10, (50,50,50), -1)
             else:
                 x,y,w,h = cv2.boundingRect(cont)
-                # self.target_surface = ?? x*y or w*h
-                # self.surface_target.publish(self.target_surface)
+                self.target_surface = w*h
+                self.surface_target.publish(self.target_surface)
 
 
         # Convert OpenCV -> ROS Image and publish
