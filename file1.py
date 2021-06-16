@@ -57,13 +57,13 @@ class moving:
             print('Everything is so close, can not move anywhere \n')
             msg_cmd_vel.linear.x=0.0
             msg_cmd_vel.angular.z=0.0
-            self.publisher.publish(msg_cmd_vel)
+            self.publisher_moving.publish(msg_cmd_vel)
 
         elif(target_surface < 5000):
             print('Can not see target\n')
             msg_cmd_vel.linear.x = 0
             msg_cmd_vel.angular.z = 0
-            self.publisher.publish(msg_cmd_vel)
+            self.publisher_moving.publish(msg_cmd_vel)
         
         elif(target_surface <= 30000):
             print('See target\n')
@@ -72,7 +72,7 @@ class moving:
                     print("Go forward \n")
                     msg_cmd_vel.linear.x=0.1
                     msg_cmd_vel.angular.z=0.0
-                    self.publisher.publish(msg_cmd_vel)
+                    self.publisher_moving.publish(msg_cmd_vel)
                 else:
                     print('Can not go forward, it is so close \n')
             elif(msg.x==1 and msg.y==0 and msg.z==0):
@@ -80,7 +80,7 @@ class moving:
                     print("Go to left \n")
                     msg_cmd_vel.angular.z=0.3
                     msg_cmd_vel.linear.x=0.1
-                    self.publisher.publish(msg_cmd_vel)
+                    self.publisher_moving.publish(msg_cmd_vel)
                 else:
                     print('Can not go to left, it is so close \n')
             elif(msg.x==0 and msg.y==0 and msg.z==1):
@@ -88,7 +88,7 @@ class moving:
                     print("Go to right \n")
                     msg_cmd_vel.linear.x=0.1
                     msg_cmd_vel.angular.z=-0.7
-                    self.publisher.publish(msg_cmd_vel)
+                    self.publisher_moving.publish(msg_cmd_vel)
                 else:
                     print('Can not go to right, it is so close \n')
         else:
