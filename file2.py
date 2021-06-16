@@ -7,6 +7,8 @@ PROJET SY31 P21: HO Xuan Vinh
 
 import numpy as np
 import rospy
+import cv2
+from cv_bridge import CvBridge, CvBridgeError
 from geometry_msgs.msg import PoseStamped
 from turtlebot3_msgs.msg import SensorState
 from std_msgs.msg import Int32, Float32
@@ -74,13 +76,18 @@ class CameraNode:
         mask_hsv = cv2.inRange(img_hsv, self.hsv_min, self.hsv_max)
         mask = cv2.morphologyEx(mask_hsv, cv2.MORPH_CLOSE, np.ones((20,20)))
 
+
+        dest=cv2.inRange(img_bgr,self.Cmin,self.Cmax)
         contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
+        #cv2.drawContours(img_bgr, contours , -1 , (0,255,0) , 3)
+        #cv2.contourArea(contours)
+
         if (length(contours) == 0):
-            print('Can not see target\n')
+            print('Can not see target(Or maybe it is too big)\n')
             self.target_surface = 0
             self.surface_target.publish(self.target_surface)
-
+            #So can not see position, all 0
             self.position.x = 0
             self.position.y = 0
             self.position.z = 0
@@ -107,7 +114,7 @@ class CameraNode:
             
             cv2.circle(img_bgr, tuple(center), radius)
 
-            if ( center < width/3 ):   #left
+            if ( center < width/3 ):  #left
                 self.position.x=1
                 self.position.y=0
                 self.position.z=0
@@ -117,7 +124,7 @@ class CameraNode:
                 self.position.x=0
                 self.position.y=0
                 self.position_target.publish(self.position)
-            else:
+            else: #center
                 self.position.y=1
                 self.position.x=0
                 self.position.z=0

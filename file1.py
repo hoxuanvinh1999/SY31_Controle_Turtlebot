@@ -25,9 +25,6 @@ global distance_obstacle = 0.1
 global obstacles = []
 global coords = []
 
-
-global target_surface = 0
-
 PC2FIELDS = [PointField('x', 0, PointField.FLOAT32, 1),
              PointField('y', 4, PointField.FLOAT32, 1),
              PointField('z', 8, PointField.FLOAT32, 1),
@@ -45,10 +42,13 @@ class moving:
 
         self.publisher_moving = rospy.Publisher('/cmd_vel',Twist,queue_size=10)
 
+        self.target_surface = Float32()
+        self.target_surface = 0
+
     def move(self,msg):
         msg_cmd_vel = Twist()
 
-        print('Surface target: ', target_surface,'\n')
+        print('Surface target: ', self.target_surface,'\n')
 
         distance_min = min(d_back,d_forward,d_left,d_right)
         distance_max = max(d_back,d_forward,d_left,d_right)
@@ -98,8 +98,9 @@ class moving:
             self.publisher.publish(msg_cmd_vel)
     
     def getsurface(self,surface):
-        print('Surface target: ', target_surface,'\n')
-        target_surface=surface.data
+        print('Data surface: ',surface.data,'\n')
+        self.target_surface=surface.data
+        print('Surface target: ', self.target_surface,'\n')
 
     def function_laser(self,msg):
         for i, theta in enumerate(np.arange(msg.angle_min, msg.angle_max, msg.angle_increment)):
